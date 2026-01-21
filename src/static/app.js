@@ -5,6 +5,25 @@ document.addEventListener("DOMContentLoaded", () => {
   const messageDiv = document.getElementById("message");
 
   // Function to fetch activities from API
+  async function unregisterParticipant(activityName) {
+    try {
+      const response = await fetch(`/unregister/${activityName}`, { method: 'DELETE' });
+      if (!response.ok) {
+        throw new Error('Failed to unregister participant');
+      }
+      fetchActivities(); // Refresh the activities list
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  // Add event listener for delete icons
+  activitiesList.addEventListener('click', (event) => {
+    if (event.target.classList.contains('delete-icon')) {
+      const activityName = event.target.parentElement.textContent.trim();
+      unregisterParticipant(activityName);
+    }
+  });
   async function fetchActivities() {
     try {
       const response = await fetch("/activities");
@@ -66,6 +85,7 @@ document.addEventListener("DOMContentLoaded", () => {
         messageDiv.textContent = result.message;
         messageDiv.className = "success";
         signupForm.reset();
+        fetchActivities(); // Refresh the activities list
       } else {
         messageDiv.textContent = result.detail || "An error occurred";
         messageDiv.className = "error";
